@@ -1,0 +1,51 @@
+# Install packages (Run only first time)
+install.packages("randomForest")
+install.packages("caret")
+
+# Load libraries
+library(randomForest)
+library(caret)
+
+# Import dataset
+data <- read.csv("C:\Users\24AD009\Downloads\survey lung cancer.csv"")
+
+# Check column names
+colnames(data)
+
+# Convert target variable to factor (important for classification)
+data$diagnosis <- as.factor(data$diagnosis)
+
+# Remove ID column if present
+data$id <- NULL
+
+# Set seed for reproducibility
+set.seed(123)
+
+# Split data (70% train, 30% test)
+index <- createDataPartition(data$diagnosis, p = 0.7, list = FALSE)
+train_data <- data[index, ]
+test_data  <- data[-index, ]
+
+# Train Random Forest model
+rf_model <- randomForest(diagnosis ~ ., 
+                         data = train_data, 
+                         ntree = 100, 
+                         mtry = 4, 
+                         importance = TRUE)
+
+# Print model summary
+print(rf_model)
+
+# Variable importance
+importance(rf_model)
+varImpPlot(rf_model)
+
+# Predictions
+predictions <- predict(rf_model, test_data)
+
+# Confusion matrix
+confusionMatrix(predictions, test_data$diagnosis)
+
+# Accuracy
+accuracy <- mean(predictions == test_data$diagnosis)
+print(paste("Accuracy:", accuracy))
