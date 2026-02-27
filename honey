@@ -1,0 +1,49 @@
+# Install packages (Run only first time)
+install.packages("rpart")
+install.packages("rpart.plot")
+
+# Load libraries
+library(rpart)
+library(rpart.plot)
+
+# Import dataset
+data <- read.csv("C:/Users/24AD009/Downloads/breast-cancer-wisconsin-data_data (1).csv")
+
+# Check column names
+colnames(data)
+
+# If your dataset is the Breast Cancer Wisconsin dataset,
+# the target column is usually named "diagnosis"
+# Convert target variable to factor (important for classification)
+data$diagnosis <- as.factor(data$diagnosis)
+
+# Remove ID column if present
+data$id <- NULL
+
+# Set seed
+set.seed(123)
+
+# Split data (70% train, 30% test)
+index <- sample(1:nrow(data), 0.7 * nrow(data))
+train_data <- data[index, ]
+test_data  <- data[-index, ]
+
+# Train Decision Tree model
+model <- rpart(diagnosis ~ ., data = train_data, method = "class")
+
+# Print model
+print(model)
+
+# Plot tree
+rpart.plot(model)
+
+# Predictions
+predictions <- predict(model, test_data, type = "class")
+
+# Confusion matrix
+print(table(Predicted = predictions, Actual = test_data$diagnosis))
+
+# Accuracy
+accuracy <- mean(predictions == test_data$diagnosis)
+print(paste("Accuracy:", accuracy))
+
